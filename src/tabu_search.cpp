@@ -29,7 +29,7 @@ namespace std {
 }
 
 std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>& initialSolution,
-    const std::string& neighborhood) {
+                            const std::string& neighborhood) {
     int n = instance.numJobs;
 
     // Step 1: improve initial solution with first-improvement and insert
@@ -39,12 +39,15 @@ std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>
 
     // Step 2: determine time limit based on instance size
     double time_limit = 0.0;
-    if (n == 50) time_limit = 153.0;
-    else if (n == 100) time_limit = 2725.0;
-    else if (n == 200) time_limit = 9000.0;
-    else {
-    std::cerr << "Unsupported problem size for time limit: " << n << " jobs." << std::endl;
-    exit(EXIT_FAILURE);
+    if (n == 50) {
+        time_limit = 153.0;
+    } else if (n == 100) {
+        time_limit = 2725.0;
+    } else if (n == 200) {
+        time_limit = 9000.0;
+    } else {
+        std::cerr << "Unsupported problem size for time limit: " << n << " jobs." << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     std::cout << "→ Time limit for Tabu Search: " << time_limit << " seconds" << std::endl;
@@ -55,66 +58,66 @@ std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>
     auto start_time = std::chrono::high_resolution_clock::now();
 
     while (true) {
-    auto now = std::chrono::high_resolution_clock::now();
-    double elapsed = std::chrono::duration<double>(now - start_time).count();
-    if (elapsed > time_limit) break;
+        auto now = std::chrono::high_resolution_clock::now();
+        double elapsed = std::chrono::duration<double>(now - start_time).count();
+        if (elapsed > time_limit) break;
 
-    std::vector<int> bestNeighbor = current;
-    int bestNeighborCost = INT_MAX;
-    Move bestMove(-1, -1);
+        std::vector<int> bestNeighbor = current;
+        int bestNeighborCost = INT_MAX;
+        Move bestMove(-1, -1);
 
-    for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < n; ++j) {
-    if (i == j) continue;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (i == j) continue;
 
-    std::vector<int> neighbor = current;
+                std::vector<int> neighbor = current;
 
-    if (neighborhood == "exchange" && i < j) {
-    std::swap(neighbor[i], neighbor[j]);
-    } else if (neighborhood == "transpose" && j == i + 1) {
-    std::swap(neighbor[i], neighbor[j]);
-    } else if (neighborhood == "insert") {
-    int job = neighbor[i];
-    neighbor.erase(neighbor.begin() + i);
-    neighbor.insert(neighbor.begin() + j, job);
-    } else {
-    continue;
-    }
+                if (neighborhood == "exchange" && i < j) {
+                    std::swap(neighbor[i], neighbor[j]);
+                } else if (neighborhood == "transpose" && j == i + 1) {
+                    std::swap(neighbor[i], neighbor[j]);
+                } else if (neighborhood == "insert") {
+                    int job = neighbor[i];
+                    neighbor.erase(neighbor.begin() + i);
+                    neighbor.insert(neighbor.begin() + j, job);
+                } else {
+                    continue;
+                }
 
-    int cost = computeCompletionTime(instance, neighbor);
-    Move move(i, j);
-    bool isTabu = tabuList.find(move) != tabuList.end();
-    bool aspiration = cost < bestCost;
+                int cost = computeCompletionTime(instance, neighbor);
+                Move move(i, j);
+                bool isTabu = tabuList.find(move) != tabuList.end();
+                bool aspiration = cost < bestCost;
 
-    if (!isTabu || aspiration) {
-    if (cost < bestNeighborCost) {
-    bestNeighbor = neighbor;
-    bestNeighborCost = cost;
-    bestMove = move;
-    }
-    }
-    }
-    }
+                if (!isTabu || aspiration) {
+                    if (cost < bestNeighborCost) {
+                        bestNeighbor = neighbor;
+                        bestNeighborCost = cost;
+                        bestMove = move;
+                    }
+                }
+            }
+        }
 
-    current = bestNeighbor;
+        current = bestNeighbor;
 
-    if (bestNeighborCost < bestCost) {
-    bestCost = bestNeighborCost;
-    bestSolution = bestNeighbor;
-    }
+        if (bestNeighborCost < bestCost) {
+            bestCost = bestNeighborCost;
+            bestSolution = bestNeighbor;
+        }
 
-    for (auto it = tabuList.begin(); it != tabuList.end(); ) {
-    it->second--;
-    if (it->second <= 0) {
-    it = tabuList.erase(it);
-    } else {
-    ++it;
-    }
-    }
+        for (auto it = tabuList.begin(); it != tabuList.end();) {
+            it->second--;
+            if (it->second <= 0) {
+                it = tabuList.erase(it);
+            } else {
+                ++it;
+            }
+        }
 
-    if (bestMove.i != -1 && bestMove.j != -1) {
-    tabuList[bestMove] = tabuTenure;
-    }
+        if (bestMove.i != -1 && bestMove.j != -1) {
+            tabuList[bestMove] = tabuTenure;
+        }
     }
 
     return bestSolution;
