@@ -6,8 +6,16 @@
 #include <vector>
 #include <string>
 
-std::vector<int> geneticAlgorithm(const PFSPInstance& instance, int populationSize = 50,
-                                  int generations = 500, double mutationRate = 0.2,
-                                  int tournamentSize = 3);
+std::vector<int> geneticAlgorithm(const PFSPInstance& instance,
+    int populationSize,
+    int generations,
+    double mutationRate,
+    int tournamentSize,
+    int bestKnown,
+    double targetPercent,
+    const std::string& instanceName,
+    const std::string& algoName,
+    int seed);
+
 
 #endif

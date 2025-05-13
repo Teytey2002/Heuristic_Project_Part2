@@ -1,12 +1,14 @@
 
 #include "tabu_search.hpp"
 #include "local_search.hpp"
+#include "utils.hpp"
 
 #include <unordered_map>
 #include <algorithm>
 #include <climits>
 #include <chrono>
 #include <iostream>
+#include <fstream>
 
 // Structure to represent a move (swap or insert operation)
 struct Move {
@@ -28,8 +30,12 @@ namespace std {
     };
 }
 
+
 std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>& initialSolution,
-                            const std::string& neighborhood) {
+                            const std::string& neighborhood,
+                            int bestKnown, double targetPercent, const std::string& instanceName,
+                            const std::string& algoName, int seed) {
+    
     int n = instance.numJobs;
 
     // Step 1: improve initial solution with first-improvement and insert
@@ -40,9 +46,9 @@ std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>
     // Step 2: determine time limit based on instance size
     double time_limit = 0.0;
     if (n == 50) {
-        time_limit = 153.0;
+        time_limit = 3.1 ; //153.0;
     } else if (n == 100) {
-        time_limit = 2725.0;
+        time_limit = 54.5; //2725.0;
     } else if (n == 200) {
         time_limit = 9000.0;
     } else {
@@ -104,6 +110,15 @@ std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>
         if (bestNeighborCost < bestCost) {
             bestCost = bestNeighborCost;
             bestSolution = bestNeighbor;
+            
+            //std::cout << "Test seuil : current = " << bestNeighborCost << " vs target = " << bestKnown * (1.0 + targetPercent / 100.0) << std::endl;
+
+            // Verify if the solution meets the desired quality target
+            if (isTargetReached(bestCost, bestKnown, targetPercent)) {
+                std::ofstream fout("results/rtd_results.csv", std::ios::app);
+                fout << instanceName << "," << algoName << "," << seed << "," << targetPercent << "," << elapsed << "\n";
+                break;
+            }
         }
 
         for (auto it = tabuList.begin(); it != tabuList.end();) {

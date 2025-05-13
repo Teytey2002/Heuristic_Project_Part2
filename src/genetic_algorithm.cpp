@@ -1,11 +1,13 @@
 #include "genetic_algorithm.hpp"
 #include "local_search.hpp"
 #include "init_methods.hpp"
+#include "utils.hpp"
 
 #include <algorithm>
 #include <random>
 #include <chrono>
 #include <iostream>
+#include <fstream>
 
 // Individual representation: a job permutation
 using Individual = std::vector<int>;
@@ -82,15 +84,17 @@ void insertMutation(Individual& indiv, std::mt19937& rng) {
 
 // Main GA function
 std::vector<int> geneticAlgorithm(const PFSPInstance& instance, int populationSize,
-                                  int generations, double mutationRate, int tournamentSize) {
+                                  int generations, double mutationRate, int tournamentSize,                             
+                                  int bestKnown, double targetPercent, const std::string& instanceName,
+                                  const std::string& algoName, int seed) {
     //int n = instance.numJobs;
     std::mt19937 rng(std::random_device{}());
     std::uniform_real_distribution<> prob(0.0, 1.0);
     
     // Initialize time limit based on problem size
     double time_limit = 0.0;
-    if (instance.numJobs == 50) time_limit = 153.0;
-    else if (instance.numJobs == 100) time_limit = 2725.0;
+    if (instance.numJobs == 50) time_limit = 3.1; //153.0;
+    else if (instance.numJobs == 100) time_limit =54.5; // 2725.0;
     else if (instance.numJobs == 200) time_limit = 8990.0;
     else {
         std::cerr << "Unsupported problem size for time limit." << std::endl;
@@ -148,13 +152,28 @@ std::vector<int> geneticAlgorithm(const PFSPInstance& instance, int populationSi
             fitness.push_back(evaluateFitness(instance, indiv));
         }
 
-        // Keep track of best
+        // Keep track of best and check quality target
         for (int i = 0; i < populationSize; ++i) {
             if (fitness[i] < bestFitness) {
                 bestFitness = fitness[i];
                 bestSolution = newPopulation[i];
+
+                //std::cout << "Test seuil : current = " << bestFitness << " vs target = " << bestKnown * (1.0 + targetPercent / 100.0) << std::endl;
+
+                if (isTargetReached(bestFitness, bestKnown, targetPercent)) {
+                    auto now = std::chrono::high_resolution_clock::now();
+                    double reachedTime = std::chrono::duration<double>(now - start_time).count();
+
+                    std::cout << "Target reached: " << bestFitness << " in " << reachedTime << " sec\n";
+
+                    std::ofstream fout("results/rtd_results.csv", std::ios::app);
+                    fout << instanceName << "," << algoName << "," << seed << "," << targetPercent << "," << reachedTime << "\n";
+
+                    return bestSolution;
+                }
             }
         }
+
 
         population = newPopulation;
     }

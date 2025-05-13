@@ -4,6 +4,8 @@
 #include <chrono>
 #include <iomanip>
 #include <fstream>
+#include <map>
+#include <algorithm>
 
 #include "pfsp_instance.hpp"
 #include "init_methods.hpp"
@@ -24,6 +26,7 @@ int main(int argc, char* argv[]) {
     int populationSize = 50;
     double mutationRate = 0.2;
     int tournamentSize = 3;
+    double targetPercent = -1.0;
 
 
     // Reading command-line arguments
@@ -56,6 +59,9 @@ int main(int argc, char* argv[]) {
         }
         else if (arg.rfind("--tour=", 0) == 0) {
             tournamentSize = stoi(arg.substr(7));
+        }
+        else if (arg.rfind("--target=", 0) == 0) {
+            targetPercent = stod(arg.substr(9));
         }        
         else {
             cerr << "Error: Unknown argument " << arg << endl;
@@ -67,6 +73,27 @@ int main(int argc, char* argv[]) {
         cerr << "Error: Instance file not specified." << endl;
         return EXIT_FAILURE;
     }
+
+    // Read best known solutions in a map
+    map<string, int> bestKnownMap;
+    ifstream bk("bestKnownTCT.txt");
+    string line;
+    getline(bk, line); // skip header
+    while (getline(bk, line)) {
+        stringstream ss(line);
+        string name;
+        int val;
+        getline(ss, name, ',');
+        ss >> val;
+        bestKnownMap[name] = val;
+    }
+
+    // Extraire le nom de l'instance (ex: TA51)
+    string shortName = filename.substr(filename.find_last_of("/") + 1);
+    transform(shortName.begin(), shortName.end(), shortName.begin(), ::toupper); // ta051 -> TA051
+    if (shortName.substr(0, 2) == "TA" && shortName[2] == '0') shortName = "TA" + shortName.substr(3);
+
+    int bestKnown = bestKnownMap[shortName];
 
     // Displaying the chosen configuration
     cout << "Configuration:\n";
@@ -109,9 +136,11 @@ int main(int argc, char* argv[]) {
         vector<string> vnd2 = {"transpose", "insert", "exchange"};
         permutation = localSearchVND(instance, permutation, vnd2);
     } else if (pivoting_rule == "tabu") {
-        permutation = tabuSearch(instance, permutation, neighborhood);
+            permutation = tabuSearch(instance, permutation, neighborhood,
+                                     bestKnown, targetPercent, shortName, "tabu", seed);
     } else if (pivoting_rule == "genetic") {
-        permutation = geneticAlgorithm(instance, populationSize, 500, mutationRate, tournamentSize);
+        permutation = geneticAlgorithm(instance, populationSize, 500, mutationRate, tournamentSize,
+                                       bestKnown, targetPercent, shortName, "genetic", seed);
     } else {
         cerr << "Error: Unknown pivoting rule." << endl;
         return EXIT_FAILURE;
@@ -127,7 +156,7 @@ int main(int argc, char* argv[]) {
     cout << "CPU time (s): " << fixed << setprecision(6) << elapsed.count() << endl;
 
     if (saveResults) {
-        ofstream fout("results/results_genetic.csv", ios::app);
+        ofstream fout("results/test.csv", ios::app);
     
         if (pivoting_rule == "genetic") {
             fout << filename << ","

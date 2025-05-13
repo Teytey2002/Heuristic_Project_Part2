@@ -8,6 +8,7 @@
 
 // Tabu Search function
 std::vector<int> tabuSearch(const PFSPInstance& instance, const std::vector<int>& initialSolution,
-                            const std::string& neighborhood);
+                            const std::string& neighborhoodint, int bestKnown, double targetPercent, const std::string& instanceName,
+                            const std::string& algoName, int seed);
 
 #endif
