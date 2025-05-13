@@ -9,15 +9,17 @@ C++ implementation of two metaheuristics for the Permutation Flow-Shop Schedulin
 
 ```
 Heuristic_Project_Part2/
-├── src/                    # C++ source files (modular: main, GA, Tabu, etc.)
-├── include/                # Header files
-├── data/                   # Benchmark instances (ta051–ta110)
-├── results/                # Output CSV files
-├── scripts/                # Python & R scripts for analysis
-├── run_final_tabu.sh       # Final batch run script for Tabu Search
-├── run_final_genetic.sh    # Final batch run script for Memetic Algorithm
-├── run_tuning_genetic.sh   # Script to tune genetic parameters
-└── Makefile                # Build automation
+├── src/                      # C++ source files (modular: main, GA, Tabu, etc.)
+├── include/                  # Header files
+├── doc/                      # Report and statement
+├── data/                     # Benchmark instances (ta051–ta110)
+├── results/                  # Output CSV files
+├── scripts/                  # Python & R scripts for analysis
+├── run_all_parra.sh          # Final batch run script for Tabu Search
+├── run_all_genetic_parra.sh  # Final batch run script for Memetic Algorithm
+├── run_tuning_genetic.sh     # Script to tune genetic parameters
+├── run_rtd.sh                # Script to run rtd test
+└── Makefile                  # Build automation
 ```
 
 ---
@@ -62,12 +64,13 @@ If not provided, they are automatically selected based on the instance size.
 | `--first`, `--best` | Iterative improvement (used only in part 1)              |
 | `--vnd1`, `--vnd2`  | Run VND from part 1                                      |
 | `--insert`, etc.    | Neighborhood type (for Tabu)                             |
-| `--srz`, `--random-init` | Initialization strategy                            |
+| `--srz`, `--random-init` | Initialization strategy                             |
 | `--pop=...`         | GA population size                                       |
 | `--mut=...`         | GA mutation rate                                         |
 | `--tour=...`        | GA tournament size                                       |
 | `--seed=...`        | Fix random seed                                          |
 | `--save`            | Append results to CSV file                               |
+| `--target=`         | Define a target for rtd test                             |
 
 ---
 
@@ -75,12 +78,12 @@ If not provided, they are automatically selected based on the instance size.
 
 ### Tabu Search (parallel execution)
 ```bash
-./run_final_tabu.sh
+./run_all_parra.sh
 ```
 
 ### Memetic Algorithm (genetic + local search)
 ```bash
-./run_final_genetic.sh
+./run_all_genetic_parra.sh 
 ```
 
 ### Parameter Tuning (Memetic Algorithm)
@@ -104,12 +107,8 @@ Use the scripts in `scripts/` to:
 
 To record **Run-Time Distributions (RTD)**:
 ```bash
-./run_rtd_experiments.sh
+./run_rtd.sh  
 ```
-
-Requires `--rtd`, `--time-limit=`, `--best=`, and `--save-rtd=...` in `main.cpp`
-
----
 
 ## 📌 Notes
 
