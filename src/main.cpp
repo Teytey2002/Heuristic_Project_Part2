@@ -12,6 +12,7 @@
 #include "local_search.hpp"
 #include "tabu_search.hpp"
 #include "genetic_algorithm.hpp"
+#include "utils.hpp"
 
 using namespace std;
 
@@ -87,8 +88,8 @@ int main(int argc, char* argv[]) {
         ss >> val;
         bestKnownMap[name] = val;
     }
-
-    // Extraire le nom de l'instance (ex: TA51)
+    
+    // Extract the instance name (e.g., TA51) from the filename
     string shortName = filename.substr(filename.find_last_of("/") + 1);
     transform(shortName.begin(), shortName.end(), shortName.begin(), ::toupper); // ta051 -> TA051
     if (shortName.substr(0, 2) == "TA" && shortName[2] == '0') shortName = "TA" + shortName.substr(3);
