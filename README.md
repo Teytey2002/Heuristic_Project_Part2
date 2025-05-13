@@ -11,6 +11,7 @@ C++ implementation of two metaheuristics for the Permutation Flow-Shop Schedulin
 Heuristic_Project_Part2/
 ├── src/                      # C++ source files (modular: main, GA, Tabu, etc.)
 ├── include/                  # Header files
+├── doc/                      # Report and statement
 ├── data/                     # Benchmark instances (ta051–ta110)
 ├── results/                  # Output CSV files
 ├── scripts/                  # Python & R scripts for analysis
