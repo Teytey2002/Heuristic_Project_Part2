@@ -1,0 +1,27 @@
+Results of the Wilcoxon test for each instance size
+
+instance size : 200 jobs
+
+        Wilcoxon signed rank exact test
+
+data:  subset$avg_deviation_memetic and subset$avg_deviation_tabu
+V = 0, p-value = 0.001953
+alternative hypothesis: true location shift is not equal to 0
+
+
+instance size : 50 jobs
+
+        Wilcoxon signed rank exact test
+
+data:  subset$avg_deviation_memetic and subset$avg_deviation_tabu
+V = 0, p-value = 0.001953
+alternative hypothesis: true location shift is not equal to 0
+
+
+instance size : 100 jobs
+
+        Wilcoxon signed rank exact test
+
+data:  subset$avg_deviation_memetic and subset$avg_deviation_tabu
+V = 0, p-value = 0.001953
+alternative hypothesis: true location shift is not equal to 0
